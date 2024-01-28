@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}<title>Hasker: {{ question.title }}</title>{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<div class="card border-light mb-3" style="max-width: 60rem; margin-top:5px; margin-bottom:80px;">
+  <div class="card-header">
+    <h4>{{ question.title }}</h4>
+    <h8><i>Created: {{ question.created_on }}</i></h8>
+  </div>
+  <div class="card-body">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-2">
+          <div class="row">
+            <a href="{% url 'questions:questionvote' question.id 1 %}">
+              <img src="{% static 'questions/up_arrow.png' %}" alt="Upvote" width="40" height="40">
+            </a>
+          </div>
+          <div class="row">
+            <div class="col-1">
+              <h5 class="text-align:center">{{ question.votes }}</h5>
+            </div>
+          </div>
+          <div class="row">
+            <a href="{% url 'questions:questionvote' question.id 0 %}">
+              <img src="{% static 'questions/down_arrow.png' %}" alt="Downvote" width="40" height="40">
+            </a>
+          </div>
+        </div>
+        <div class="col-10">
+          <div class="row">
+            <p>{{ question.content }}</p>
+          </div>
+          <div class="row">
+            <div class="col-7">
+              <!-- TAGS -->
+              <p class="card-text">
+                {% for tag in question.tags %}
+                <a href="{% url 'questions:searchtag' tag.id %}" class="badge badge-info text-wrap">{{ tag.title }}</a>
+                {% endfor %}
+              </p>
+            </div>
+            
+            <div class="col-3">
+              <!-- AUTHOR -->
+              {% if question.author.profile.avatar %}
+              <!-- USER AVATAR -->
+              <img src="{{ question.author.profile.avatar }}" class="rounded-circle" alt="User avatar" width="50" height="50" style="margin-bottom:15px;">
+              {% else %}
+              <img src="{% static 'users/userpic.png' %}" alt="Default avatar" width="50" height="50" style="margin-bottom:15px;">
+              {% endif %}
+              <p><a href="#" class="text-primary">{{ question.author }}</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<h4 style="margin-left:10px;">Answers</h4>
+
+{% if answer_query %}
+
+{% for answer in answer_query %}
+
+<div class="card border-light mb-3" style="max-width: 60rem; margin-top:5px; margin-bottom:80px;">
+  <div class="card-header"></div>
+  <div class="card-body">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-2">
+          <div class="row">
+            <!-- ANSWER VOTING-->
+            <a href="{% url 'questions:answervote' answer.id 1 %}">
+              <img src="{% static 'questions/up_arrow.png' %}" alt="Upvote" width="40" height="40">
+            </a>
+          </div>
+          <div class="row">
+            <div class="col-1">
+              <h5 class="text-align:center">{{ answer.votes }}</h5>
+            </div>
+          </div>
+          <div class="row">
+            <a href="{% url 'questions:answervote' answer.id 0 %}">
+              <img src="{% static 'questions/down_arrow.png' %}" alt="Downvote" width="40" height="40">
+            </a>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <div class="col-1"></div>
+            <div class="col-12">
+              <!-- BEST ANSWER LOGIC-->
+              {% if answer.answer_flag == 1 %}
+              <a href="{% url 'questions:alterflag' answer.id %}"><img src="{% static 'questions/star.png' %}" alt="Best answer" width="20" height="20"></a>
+              {% else %}
+              <a href="{% url 'questions:alterflag' answer.id %}"><img src="{% static 'questions/emptystar.png' %}" alt="Ordinary answer" width="20" height="20"></a>
+              {% endif %}
+            </div>
+            <div class="col-1"></div>
+          </div>
+        </div>
+        <div class="col-10">
+          <div class="row">
+            <!-- ANSWER CONTENT -->
+            <p>{{ answer.content }}</p>
+          </div>
+          <div class="row">
+            <div class="col-7">
+              <p class="text-secondary">Created: {{ answer.created_on }}</p>
+            </div>
+            <div class="col-3">
+              <!-- ANSWER AUTHOR -->
+              <p><a href="#" class="text-primary">{{ answer.author }}</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endfor %}
+    </ul>
+{% else %}
+    <p>No answers for that question yet. Write one?..</p>
+{% endif %}
+
+<hr>
+<!-- ANSWER FORM -->
+{% if user.is_authenticated %}
+<legend><h3>Your answer:</h3></legend>
+<form action="{% url 'questions:question' question.id %}" method="post" style="margin-bottom:40px;">
+  {% csrf_token %}
+  {% if error_message %}
+  <div class="alert alert-warning" role="alert">
+      {{ error_message }}
+  </div>
+  {% endif %}
+
+  {% for field in form %}
+  <div class="mb-3" style="margin-bottom:40px;">
+    <label for="{{ field.html_name }}" class="form-label">{{ field.label }}</label>
+    {% if field.field.widget.input_type %}
+    <p><textarea class="form-control" id="{{ form.content.id_for_label }}" name="{{ form.content.html_name }}" cols="70" rows="5" placeholder="Your answer"></textarea></p>
+    {% else %}
+    <textarea class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" rows="6" placeholder="Your question"></textarea>
+    {% endif %}
+    {% if field.help_text %}
+      <small style="color: grey">{{ field.help_text }}</small>
+    {% endif %}
+    {% for error in field.errors %}
+    <div class="alert alert-warning" role="alert">
+        {{ error }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+  <input type="submit" class="btn btn-primary" value="Submit">
+  <input type="reset" class="btn btn-secondary" value="Clear">
+</form>
+{% else %}
+<h4 style="margin-left:10px;">Please register or sign up to write an answer</h4>
+{% endif %}
+{% endblock %}

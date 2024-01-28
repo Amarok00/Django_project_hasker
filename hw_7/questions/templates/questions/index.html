@@ -1,0 +1,16 @@
+{% extends "questions/base_index.html" %}
+
+{% block title %}<title>Hasker - main</title>{% endblock %}
+
+{% block qw_navigate %}
+<div class="container-fluid">
+    <ul class="nav nav-tabs card-header-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" href="#">New questions</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'questions:hot' %}">Hot questions</a>
+      </li>
+    </ul>
+</div>
+{% endblock %}

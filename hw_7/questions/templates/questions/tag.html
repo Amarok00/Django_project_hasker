@@ -1,0 +1,9 @@
+{% extends "questions/base_index.html" %}
+
+{% block title %}<title>Hasker - tagsearch {{ tag }}</title>{% endblock %}
+
+{% block qw_navigate %}
+<div class="container-fluid">
+  <h3 style="margin-top:30px; margin-bottom:30px;">Questions with "{{ tag }}" tag</h3>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% load static %}
+
+<h3>Setting</h3>
+
+<div class="container-fluid" style="margin-bottom:30px; margin-top:30px;">
+        {% if error_message %}
+        <div class="alert alert-warning" role="alert">
+            {{ error_message }}
+        </div>
+        {% endif %}
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                <div class="alert alert-warning" role="alert">
+                    {{ field }} : {{ error }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+        {% if submit_email %}
+        <div class="alert alert-success" role="alert">
+            {{ submit_email }}
+        </div>
+        {% endif %}
+        {% if submit_avatar %}
+        <div class="alert alert-success" role="alert">
+            {{ submit_avatar }}
+        </div>
+        {% endif %}
+        {% if submit_alert %}
+        <div class="alert alert-success" role="alert">
+            {{ submit_alert }}
+        </div>
+        {% endif %}
+        <div class="row" style="margin-bottom:30px; margin-top:30px;">
+            <div class="col-3">
+                <h6>Login</h6>
+            </div>
+            <div class="col-5">
+                {% if user.id %}
+                {{ user.username }}
+                {% else %}
+                <p>username should be here...</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row" style="margin-bottom:30px; margin-top:30px;">
+            <div class="col-3">
+                <h6>Email</h6>
+            </div>
+            <div class="col-5">
+                <input class="form-control" form="input_form" type="text" name="{{ form.email.html_name }}" id="{{ form.email.id_for_label }}" value="{{ form.email.value }}">
+            </div>
+        </div>
+        <div class="row" style="margin-bottom:30px; margin-top:30px;">
+            <div class="col-3">
+                <h6>Avatar</h6>
+            </div>
+            <div class="col-5">
+                {% if user.profile.avatar %}
+                <!-- USER AVATAR -->
+                <img src="{{ user.profile.avatar }}" alt="User avatar" width="100" height="100">
+                {% else %}
+                <img src="{% static 'users/userpic.png' %}" alt="Default avatar" width="100" height="100">
+                {% endif %}
+            </div>
+        </div>
+        <div class="row" style="margin-bottom:30px; margin-top:30px;">
+            <div class="col-3">
+                <h6>Email alerts</h6>
+            </div>
+            <div class="col-5">
+                <div class="form-check">
+                    <!-- EMAIL alerts -->
+                    <input type="hidden" name="{{ form.alerts.html_name }}" form="input_form">
+                    <input class="form-check-input" type="checkbox" id="{{ form.alerts.id_for_label }}"
+                        name="{{ form.alerts.html_name }}" form="input_form"
+                        {% if form.alerts.value %}
+                            checked
+                        {% endif %}
+                        >
+                    <label class="form-check-label" for="flexcheck">Send email notifications about new answers for my questions</label>
+                  </div>
+            </div>
+        </div>
+    <form id="input_form" action="{% url 'users:profile' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row" style="margin-bottom:30px; margin-top:30px;">
+            <div class="col-3"></div>
+            <div class="col-5">
+                <div class="mb-3">
+                    <label for="avatar" class="form-label">Upload your avatar:</label>
+                    <input class="form-control" type="file" id="{{ form.avatar.id_for_label }}" name="{{ form.avatar.html_name }}" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a type="button" class="btn btn-outline-danger" href="{% url 'users:logout' %}">Log out</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
