@@ -6,14 +6,23 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic.base import RedirectView
 
-from questions import views
+from questions.views import (
+    IndexView,
+    IndexSearchView,
+    ShowQuestionView,
+    HotIndexView,
+    AlterFlagView,
+    SearchTagView,
+    AnswerVoteView,
+    QuestionVoteView,
+)
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('questions/', include('questions.urls')),
-    path('admin/', admin.site.urls),
-    path('users/', include('users.urls')),
-    path('__debug__/', include('debug_toolbar.urls')),
+    path("", IndexView.as_view(), name="index"),
+    path("questions/", include("questions.urls")),
+    path("admin/", admin.site.urls),
+    path("users/", include("users.urls")),
+    path("__debug__/", include("debug_toolbar.urls")),
     path(
         "favicon.ico",
         RedirectView.as_view(url=staticfiles_storage.url("img/favicon.ico")),
