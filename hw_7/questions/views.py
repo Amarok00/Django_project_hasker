@@ -121,13 +121,15 @@ class MakeQuestionView(View):
         context = {"form": form}
         return render(request, self.template_name, context)
 
+
     def post(self, request):
         form = QuestionForm(request.POST)
         if form.is_valid():
-            # Process the form data and redirect
+            question = form.save(commit=False)
+            question.author = request.user
+            question.save()
             return redirect("questions:index")
         else:
-            # Form is not valid, render the form again with errors
             context = {"form": form}
             return render(request, self.template_name, context)
 
@@ -166,11 +168,10 @@ class AnswerVoteView(View):
 
 
 class QuestionVoteView(View):
-    @login_required
-    def post(self, request, question_id, vote=1):
-        qw = get_object_or_404(Question, pk=question_id)
+    def get(self, request, question_id, vote=1):
+        qw = Question.objects.get(pk=question_id)
         if qw.author.id == request.user.id:
             return HttpResponseRedirect(request.META["HTTP_REFERER"])
-
-        Voters.register_vote(object=qw, user_id=request.user.id, vote=vote)
-        return HttpResponseRedirect(request.META["HTTP_REFERER"])
+        else:
+            Voters.register_vote(object=qw, user_id=request.user.id, vote=vote)
+            return HttpResponseRedirect(request.META["HTTP_REFERER"])

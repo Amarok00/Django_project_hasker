@@ -8,13 +8,6 @@ from django.views.generic.base import RedirectView
 
 from questions.views import (
     IndexView,
-    IndexSearchView,
-    ShowQuestionView,
-    HotIndexView,
-    AlterFlagView,
-    SearchTagView,
-    AnswerVoteView,
-    QuestionVoteView,
 )
 
 urlpatterns = [
