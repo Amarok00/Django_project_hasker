@@ -2,8 +2,9 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
@@ -12,6 +13,7 @@ from hasker.signals import question_answered
 from .forms import AnswerForm, QuestionForm
 from .helpers import save_tags
 from .models import Answer, Question, Tag, Voters
+from django.views.generic.edit import CreateView
 
 num_pages = settings.ELEMENTS_PER_PAGE
 
@@ -113,25 +115,20 @@ class ShowQuestionView(View):
         return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
-class MakeQuestionView(View):
+class MakeQuestionView(CreateView):
+    model = Question
+    form_class = QuestionForm
     template_name = "questions/make_question.html"
+    success_url = reverse_lazy("questions:index")
 
-    def get(self, request):
-        form = QuestionForm()
-        context = {"form": form}
-        return render(request, self.template_name, context)
+    def form_valid(self, form):
+        print("Inside form_valid method")
+        form.instance.author = self.request.user
+        return super().form_valid(form)
 
-
-    def post(self, request):
-        form = QuestionForm(request.POST)
-        if form.is_valid():
-            question = form.save(commit=False)
-            question.author = request.user
-            question.save()
-            return redirect("questions:index")
-        else:
-            context = {"form": form}
-            return render(request, self.template_name, context)
+    def form_invalid(self, form):
+        print("Inside form_invalid method")
+        return super().form_invalid(form)
 
 
 class AlterFlagView(View):
@@ -156,15 +153,24 @@ class AlterFlagView(View):
         return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
-class AnswerVoteView(View):
-    @login_required
-    def post(self, request, answer_id, vote=1):
-        answer = get_object_or_404(Answer, pk=answer_id)
-        if answer.author.id == request.user.id:
-            return HttpResponseRedirect(request.META["HTTP_REFERER"])
+@login_required
+def answer_vote(request, answer_id, vote=1):
+    try:
+        answer = Answer.objects.get(pk=answer_id)
+    except Answer.DoesNotExist:
+        raise Http404("Answer does not exist")
 
-        Voters.register_vote(object=answer, user_id=request.user.id, vote=vote)
+    if answer.author.id == request.user.id:
+        # user cannot vote for his own answers
         return HttpResponseRedirect(request.META["HTTP_REFERER"])
+
+    try:
+        Voters.register_vote(object=answer, user_id=request.user.id, vote=vote)
+    except Exception as e:
+        # Handle the exception
+        print(f"An error occurred: {e}")
+
+    return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
 class QuestionVoteView(View):

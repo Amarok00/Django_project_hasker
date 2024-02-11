@@ -1,4 +1,5 @@
 from django.urls import path
+from . import views
 
 from .views import (
     IndexView,
@@ -8,7 +9,7 @@ from .views import (
     ShowQuestionView,
     MakeQuestionView,
     AlterFlagView,
-    AnswerVoteView,
+    answer_vote,
     QuestionVoteView,
 )
 
@@ -23,7 +24,7 @@ urlpatterns = [
     path("tag/<int:tag_id>", SearchTagView.as_view(), name="searchtag"),
     path(
         "answervote/<int:answer_id>/<int:vote>",
-        AnswerVoteView.as_view(),
+        answer_vote,
         name="answervote",
     ),
     path(

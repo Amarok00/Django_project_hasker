@@ -25,12 +25,30 @@ class AnswerForm(forms.Form):
 
 
 class QuestionForm(forms.ModelForm):
+    tags = forms.CharField(max_length=100, required=False)  # Define the tags field
+
     class Meta:
         model = Question
-        fields = ["title", "content"]
+        fields = ["title", "content", "tags"]  # Include the tags field in the form
 
-    def clean_title(self):
-        provided_title = self.cleaned_data.get("title")
-        if Question.objects.filter(title=provided_title).exists():
-            raise forms.ValidationError("A question with this title already exists")
-        return provided_title
+    def clean_tags(self):
+        provided_tags = self.cleaned_data.get("tags")
+        if not provided_tags:
+            return []
+        tags = provided_tags.split()
+        if len(tags) > 3:
+            raise forms.ValidationError("You can only provide up to 3 tags")
+        return tags
+
+    def save(self, commit=True):
+        question = super().save(commit=False)
+        if self.request:
+            question.author = self.request.user  # Update to associate the user with the question
+        if commit:
+            question.save()
+        return question
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request", None)
+        super().__init__(*args, **kwargs)
+        print("Form fields:", self.fields)

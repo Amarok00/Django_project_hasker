@@ -20,7 +20,7 @@ class Question(models.Model):
     status = models.IntegerField(choices=QUESTION_STATUS, default=0)
     votes = models.IntegerField(default=0)
 
-    def __str___(self):
+    def __str__(self):
         return self.title
 
     def get_answers_number(self):

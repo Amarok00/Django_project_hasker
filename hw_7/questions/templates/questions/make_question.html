@@ -1,40 +1,101 @@
-{% extends "base.html" %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-{% block title %}<title>Hasker: ask</title>{% endblock %}
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous">
 
-{% block content %}
-{% load static %}
+    <!-- TITLE -->
+    <title>Hasker: ask</title>
+    {% load static %}
 
-  <form method="post" action="{% url 'questions:make_question' %}"  style="margin-bottom:40px; margin-top:40px; margin-left:15px; margin-right:25px;">
-    {% csrf_token %}
-    <legend><h2 style="margin-bottom:20px;">Ask your question</h2></legend>
-    
-    {% if error_message %}
-    <div class="alert alert-warning" role="alert">
-        {{ error_message }}
-    </div>
-    {% endif %}
-    {% for field in form %}
-    <div class="mb-3" style="margin-bottom:40px;">
-      <label for="{{ field.html_name }}" class="form-label">{{ field.label }}</label>
-      {% if field.field.widget.input_type %}
-      <input class="form-control form-control-sm" type="{{ field.field.widget.input_type }}" id="{{ field.id_for_label }}" name="{{ field.html_name }}">
-
-      {% else %}
-      <textarea class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" rows="6" placeholder="Your answer"></textarea>
-      {% endif %}
-      {% if field.help_text %}
-        <small style="color: grey">{{ field.help_text }}</small>
-      {% endif %}
-      {% for error in field.errors %}
-      <div class="alert alert-warning" role="alert">
-          {{ error }}
+  </head>
+  <body style="position: relative; min-height: 100%;">
+    <div class="container-fluid" style="max-width:80%;">
+      <div class="container-fluid">
+        <!-- Navbar without the form -->
+        <nav class="navbar navbar-dark bg-dark py-1">
+          <!-- Navbar content -->
+          <a class="navbar-brand" href="{% url 'questions:index' %}">
+            HASKER
+          </a>
+        </nav>
       </div>
-      {% endfor %}
-    </div>
-    {% endfor %}
-    <input type="submit" class="btn btn-primary" value="Submit"></input>
-    <input type="reset" class="btn btn-secondary" value="Clear"></input>
-  </form>
 
-{% endblock %}
+      <div class="container-fluid"
+        style="margin-top: 10px; min-height:100%; position:relative; margin-bottom: 40px">
+        <div class="row">
+          <div class="col-8">
+            <!-- CONTENT -->
+            <form method="post" action="{% url 'questions:make_question' %}"
+              style="margin-bottom:40px; margin-top:40px; margin-left:15px; margin-right:25px;">
+              {% csrf_token %}
+              <legend><h2 style="margin-bottom:20px;">Ask your
+                  question</h2></legend>
+
+              <form method="post" action="{% url 'questions:make_question' %}"
+                style="margin-bottom:40px; margin-top:40px; margin-left:15px; margin-right:25px;">
+                {% csrf_token %}
+
+                {% if error_message %}
+                <div class="alert alert-warning" role="alert">
+                  {{ error_message }}
+                </div>
+                {% endif %}
+                {% for field in form %}
+                <div class="mb-3" style="margin-bottom:40px;">
+                  <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                  {% if field.field.widget.input_type %}
+                  <input class="form-control form-control-sm"
+                    type="{{ field.field.widget.input_type }}"
+                    id="{{ field.id_for_label }}" name="{{ field.html_name }}">
+
+                  {% else %}
+                  <textarea class="form-control" id="{{ field.id_for_label }}"
+                    name="{{ field.html_name }}" rows="6"
+                    placeholder="Your answer"></textarea>
+                  {% endif %}
+                  {% if field.help_text %}
+                  <small style="color: grey">{{ field.help_text }}</small>
+                  {% endif %}
+                  {% for error in field.errors %}
+                  <div class="alert alert-warning" role="alert">
+                    {{ error }}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endfor %}
+
+                <input type="submit" class="btn btn-primary" value="Submit">
+                <input type="reset" class="btn btn-secondary" value="Clear">
+              </form>
+              <!-- END CONTENT -->
+            </div>
+            <div class="col-3">
+              <!-- Additional content specific to this template goes here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="navbar-fixed-bottom row-fluid ">
+        <div class="container-fluid" style="max-width:80%; height: 25px;">
+          <div class="container-fluid">
+            <nav class="navbar navbar-dark bg-dark ">
+              <span class="navbar-text">
+
+              </span>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </body>
+  </html>
